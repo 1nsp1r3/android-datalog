@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="fill_parent"
+        android:layout_height="630dp"
+        android:gravity="bottom"
+        android:scrollbars="vertical" />
+
+    <Button
+        android:id="@+id/buttonScan"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_x="0dp"
+        android:layout_y="640dp"
+        android:text="Scan" />
+</AbsoluteLayout>
