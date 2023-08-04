@@ -12,11 +12,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_layout)
         val buttonScan: Button = findViewById(R.id.buttonScan)
-        val textView: TextView = findViewById(R.id.textView)
-        textView.movementMethod = ScrollingMovementMethod()
+        val textViewTemperature: TextView = findViewById(R.id.textViewTemperature)
+        val textViewPressure: TextView = findViewById(R.id.textViewPressure)
+        val textViewConsole: TextView = findViewById(R.id.textViewConsole)
+        textViewConsole.movementMethod = ScrollingMovementMethod()
 
-        val console = Console(textView)
+        val console = Console(textViewConsole)
         val ble = Ble(this, console)
+
+        ble.getTemperature().subscribe {
+            textViewTemperature.text = "$it °C"
+        }
+
+        ble.getPressure().subscribe {
+            textViewPressure.text = "$it PSI"
+        }
 
         console.debug("Bonjour :-)")
 

@@ -5,6 +5,7 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import io.reactivex.rxjava3.subjects.Subject
 import org.inspir3.androiddatalog.Console
 
 class Ble(
@@ -12,6 +13,9 @@ class Ble(
     private val console: Console,
 ) {
     private val bleEvent = BleEvent(console)
+
+    fun getTemperature(): Subject<UByte> = bleEvent.getTemperature()
+    fun getPressure(): Subject<UByte> = bleEvent.getPressure()
 
     private fun getBluetoothLeScanner(): BluetoothLeScanner {
         console.debug("Ble.getBluetoothLeScanner()")
