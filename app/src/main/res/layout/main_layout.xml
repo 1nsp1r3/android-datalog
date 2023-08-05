@@ -21,21 +21,21 @@
 
     <TextView
         android:id="@+id/textViewTemperature"
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="61dp"
         android:layout_x="0dp"
         android:layout_y="0dp"
         android:text="255 °C"
-        android:textAlignment="center"
+        android:textAlignment="inherit"
         android:textAppearance="@android:style/TextAppearance.Material.Display2" />
 
     <TextView
         android:id="@+id/textViewPressure"
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="61dp"
-        android:layout_x="210dp"
-        android:layout_y="0dp"
+        android:layout_x="0dp"
+        android:layout_y="70dp"
         android:text="255 PSI"
-        android:textAlignment="center"
+        android:textAlignment="inherit"
         android:textAppearance="@android:style/TextAppearance.Material.Display2" />
 </AbsoluteLayout>

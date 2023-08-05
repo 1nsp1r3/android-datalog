@@ -12,24 +12,36 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_layout)
         val buttonScan: Button = findViewById(R.id.buttonScan)
-        val textViewTemperature: TextView = findViewById(R.id.textViewTemperature)
-        val textViewPressure: TextView = findViewById(R.id.textViewPressure)
         val textViewConsole: TextView = findViewById(R.id.textViewConsole)
         textViewConsole.movementMethod = ScrollingMovementMethod()
 
         val console = Console(textViewConsole)
         val ble = Ble(this, console)
+        val fileLog = FileLog(this, console)
 
-        ble.getTemperature().subscribe {
-            textViewTemperature.text = "$it °C"
-        }
+        val temperature = Flux(
+            index = 0,
+            name = "Temperature",
+            unit = "°C",
+        )
 
-        ble.getPressure().subscribe {
-            textViewPressure.text = "$it PSI"
-        }
+        val pressure = Flux(
+            index = 1,
+            name = "Pressure",
+            unit = "PSI",
+        )
+
+        //Temperature
+        ble.addFlux(temperature)
+        displayFlux(temperature)
+        fileLog.addFlux(temperature)
+
+        //Pressure
+        ble.addFlux(pressure)
+        displayFlux(pressure)
+        fileLog.addFlux(pressure)
 
         console.debug("Bonjour :-)")
-
         try {
             //ButtonScan
             var scanning = false
@@ -38,13 +50,24 @@ class MainActivity : ComponentActivity() {
                 if (scanning) {
                     buttonScan.text = "Stop scan"
                     ble.startScan()
+                    fileLog.start()
                 } else {
                     ble.stopScan()
                     buttonScan.text = "Scan"
+                    fileLog.stop()
                 }
             }
         } catch (exception: Exception) {
             console.error(exception.message ?: "")
+        }
+    }
+
+    private fun displayFlux(flux: Flux) {
+        val res = resources
+        val id = res.getIdentifier("textView${flux.name}", "id", "org.inspir3.androiddatalog")
+        val textView: TextView = findViewById(id)
+        flux.getStream().subscribe {
+            textView.text = "$it ${flux.unit}"
         }
     }
 }
