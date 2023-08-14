@@ -1,22 +1,18 @@
 package org.inspir3.androiddatalog
 
-import android.content.Context
+import android.util.Log
 import io.reactivex.rxjava3.disposables.Disposable
-import java.io.OutputStreamWriter
-import java.time.Instant
 import java.time.LocalDateTime
 
-class FileLog(
-    private val context: Context,
-    private val console: Console,
-) {
+class FileLog {
     private val streams: MutableList<Flux> = mutableListOf()
     private val subscriptions: MutableList<Disposable> = mutableListOf()
 
-    private lateinit var writer: OutputStreamWriter
+    private val textFile = TextFile()
 
     private var maxIndex: Int = -1
     private var currentLine: String = ""
+    private var nbBufferedLines: Int = 0
 
     fun addFlux(stream: Flux): Boolean {
         if (stream.index > maxIndex) maxIndex = stream.index
@@ -24,12 +20,16 @@ class FileLog(
     }
 
     fun start() {
-        console.debug("FileLog.start()")
+        Log.i("Ble", "FileLog.start()")
 
-        context.openFileOutput(getFilename(), Context.MODE_PRIVATE)
-        writer = OutputStreamWriter(context.openFileOutput(getFilename(), Context.MODE_PRIVATE))
+        textFile.open(
+            filename = getFilename(),
+        )
 
-        writeHeader()
+        textFile.println(
+            text = generateHeader()
+        )
+
         streams.forEach { flux ->
             subscriptions.add(
                 flux.getStream().subscribe {
@@ -56,34 +56,43 @@ class FileLog(
         currentLine += "$value,"
         val count = currentLine.count { it == ',' }
         if (count == streams.size) {
-            currentLine = "${Instant.now().epochSecond},$currentLine"
+            currentLine = "${getDateTime()},$currentLine"
             currentLine = currentLine.dropLast(1)
-            writeCurrentLine()
+            textFile.println(currentLine)
+            currentLine = ""
+            nbBufferedLines++
+            if (nbBufferedLines == 5) {
+                textFile.flush()
+                nbBufferedLines = 0
+            }
         }
     }
 
-    private fun writeHeader() {
-        currentLine = "timestamp,"
+    private fun generateHeader(): String {
+        var ret = "Time,"
         streams.forEach {
             //Header
-            currentLine += it.name + ","
+            ret += it.name + ","
         }
-        currentLine = currentLine.dropLast(1)
-        writeCurrentLine()
+        return ret.dropLast(1)
     }
 
-    private fun writeCurrentLine() {
-        console.debug("FileLog.writeCurrentLine($currentLine)")
-        writer.write("$currentLine\n")
-        currentLine = ""
+    private fun getDateTime(): String {
+        val date = LocalDateTime.now()
+        val month = date.monthValue.toString().padStart(2, '0')
+        val day = date.dayOfMonth.toString().padStart(2, '0')
+        val hour = date.hour.toString().padStart(2, '0')
+        val minute = date.minute.toString().padStart(2, '0')
+        val second = date.second.toString().padStart(2, '0')
+        return "${day}/$month/${date.year} $hour:$minute:${second}"
     }
 
     fun stop() {
-        console.debug("FileLog.stop()")
+        Log.i("Ble", "FileLog.stop()")
         subscriptions.forEach {
             it.dispose()
         }
         subscriptions.clear()
-        writer.close()
+        textFile.close()
     }
 }

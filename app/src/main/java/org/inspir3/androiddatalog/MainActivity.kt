@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
 
         val console = Console(textViewConsole)
         val ble = Ble(this, console)
-        val fileLog = FileLog(this, console)
+        val fileLog = FileLog()
 
         val temperature = Flux(
             index = 0,
